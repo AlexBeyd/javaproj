@@ -6,6 +6,9 @@ import javax.swing.BorderFactory;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main {
   public static void main(String[] args) {
@@ -30,9 +33,26 @@ class MyPanel extends JPanel {
 
   int screenHeight = 700;
   int screentWidth = 1000;
+  long timerDelay = 1000L;
+  int xPosition = 0;
+
+  static Timer timer = new Timer("Timer");
+  TimerTask task;
 
   public MyPanel() {
     setBorder(BorderFactory.createLineBorder(Color.black));
+
+     task = new TimerTask() {
+      public void run() {
+        xPosition = xPosition + 10;
+        //g.drawRect(x, 0, 100, screenHeight);  
+        //System.out.println("I'm timer task. Time is " + new Date().getTime());
+        //repaint(100, 0, 100, screenHeight);
+        repaint();
+      }
+    };
+   
+    timer.schedule(task,0, timerDelay );
   }
 
   public Dimension getPreferredSize() {
@@ -46,6 +66,6 @@ class MyPanel extends JPanel {
   }
 
   private void paintObstacles(Graphics g) {
-    g.drawRect(-10, 0, 100, screenHeight);
+    g.drawRect(xPosition, 0, 100, screenHeight);    
   }
 }
