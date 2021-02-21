@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.BorderFactory;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,7 +42,7 @@ class MyPanel extends JPanel {
   int betweenColumnWidth = 100;
   Color columnColor = Color.yellow;
 
-  ArrayList<Rectangle> onScreenColumns = new ArrayList<Rectangle>();
+  ArrayList<GameColumn> onScreenColumns = new ArrayList<GameColumn>();
 
   static Timer timer = new Timer("Timer");
   TimerTask task;
@@ -49,7 +50,7 @@ class MyPanel extends JPanel {
   public MyPanel() {
     setBorder(BorderFactory.createLineBorder(Color.black));
 
-    onScreenColumns.add(new Rectangle(xPosition, 0, columnWidth, screenHeight));
+    onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight, -1));
 
     task = new TimerTask() {
       public void run() {
@@ -74,28 +75,71 @@ class MyPanel extends JPanel {
   private void paintObstacles(Graphics g) {
 
     //draw all on screen columns
-    for (Rectangle column : onScreenColumns){
+    for (GameColumn gameColumn : onScreenColumns){
       g.setColor(columnColor);
-      g.fillRect(column.x, column.y, column.width, column.height);  
+
+      for(Rectangle column : gameColumn.GetWalls()){
+        g.fillRect(column.x, column.y, column.width, column.height);  
+      }
     }  
 
     //update columns position
     for (int index = 0; index < onScreenColumns.size(); index++){
-      Rectangle column = onScreenColumns.get(index);
+      GameColumn gameColumn = onScreenColumns.get(index);
 
-      if(column.x + columnWidth < 0){
+      if(gameColumn.GetWalls().get(0).x + columnWidth < 0){
         //the column is outide of visible screen - remove it from next draw cycle
         onScreenColumns.remove(index);
         index--;
       } else{
-        onScreenColumns.set(index, new Rectangle(column.x - gameSpeed, column.y, column.width, column.height));
+        onScreenColumns.get(index).UpdateX(onScreenColumns.get(index).GetWalls().get(0).x - gameSpeed); 
       }
     }
 
     //add new column if there is place available on screen
-    Rectangle lastColumn = onScreenColumns.get(onScreenColumns.size() - 1);
+    Rectangle lastColumn = onScreenColumns.get(onScreenColumns.size() - 1).GetWalls().get(0);
     if(lastColumn.x + lastColumn.width + betweenColumnWidth < screentWidth){
-      onScreenColumns.add(new Rectangle(screentWidth, 0 , columnWidth, screenHeight));
+      onScreenColumns.add(new GameColumn(screentWidth, 0 , columnWidth, screenHeight, -1));
     }
+  }
+}
+
+class GameColumn {
+  
+  private ArrayList<Rectangle> Walls = new ArrayList<Rectangle>();
+
+  public int PassageYCoord;
+  
+
+  public GameColumn(int x, int y, int width, int height, int passageCoord){
+    int passageHeight = height / 10;
+    
+    Random numGen = new Random();
+    if(passageCoord == -1) PassageYCoord = numGen.nextInt(height);
+    else PassageYCoord = passageCoord;
+
+    if(PassageYCoord + passageHeight > height){
+      //passage is on bottom of column
+      PassageYCoord = height - passageHeight;
+      Walls.add(new Rectangle(x, y, width, height - PassageYCoord));
+    } else if(PassageYCoord == 0){
+      //passage is on top of column
+      Walls.add(new Rectangle(x, y + passageHeight, width, height - passageHeight));
+    } else{
+      //any other case
+      Walls.add(new Rectangle(x, y, width, height - PassageYCoord));
+      Walls.add(new Rectangle(x, PassageYCoord + passageHeight, width, height - PassageYCoord - passageHeight));
+    }
+  }
+
+  public void UpdateX(int newX){
+    for(int index = 0; index < Walls.size(); index++)
+    {
+      Walls.set(index, new Rectangle(newX, Walls.get(index).y, Walls.get(index).width, Walls.get(index).height));
+    }
+  }
+
+  public ArrayList<Rectangle> GetWalls(){
+    return Walls;
   }
 }
