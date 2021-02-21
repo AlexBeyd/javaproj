@@ -3,10 +3,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.BorderFactory;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.util.Date;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,8 +31,17 @@ class MyPanel extends JPanel {
 
   int screenHeight = 700;
   int screentWidth = 1000;
-  long timerDelay = 1000L;
-  int xPosition = 0;
+
+  long timerDelay = 50L;
+  int xPosition = screentWidth;
+
+  int gameSpeed = 10;
+
+  int columnWidth = 100;
+  int betweenColumnWidth = 100;
+  Color columnColor = Color.yellow;
+
+  ArrayList<Rectangle> onScreenColumns = new ArrayList<Rectangle>();
 
   static Timer timer = new Timer("Timer");
   TimerTask task;
@@ -42,17 +49,16 @@ class MyPanel extends JPanel {
   public MyPanel() {
     setBorder(BorderFactory.createLineBorder(Color.black));
 
-     task = new TimerTask() {
+    onScreenColumns.add(new Rectangle(xPosition, 0, columnWidth, screenHeight));
+
+    task = new TimerTask() {
       public void run() {
-        xPosition = xPosition + 10;
-        //g.drawRect(x, 0, 100, screenHeight);  
-        //System.out.println("I'm timer task. Time is " + new Date().getTime());
-        //repaint(100, 0, 100, screenHeight);
+        xPosition = xPosition - gameSpeed;
         repaint();
       }
     };
-   
-    timer.schedule(task,0, timerDelay );
+
+    timer.schedule(task, 0, timerDelay);
   }
 
   public Dimension getPreferredSize() {
@@ -66,6 +72,30 @@ class MyPanel extends JPanel {
   }
 
   private void paintObstacles(Graphics g) {
-    g.drawRect(xPosition, 0, 100, screenHeight);    
+
+    //draw all on screen columns
+    for (Rectangle column : onScreenColumns){
+      g.setColor(columnColor);
+      g.fillRect(column.x, column.y, column.width, column.height);  
+    }  
+
+    //update columns position
+    for (int index = 0; index < onScreenColumns.size(); index++){
+      Rectangle column = onScreenColumns.get(index);
+
+      if(column.x + columnWidth < 0){
+        //the column is outide of visible screen - remove it from next draw cycle
+        onScreenColumns.remove(index);
+        index--;
+      } else{
+        onScreenColumns.set(index, new Rectangle(column.x - gameSpeed, column.y, column.width, column.height));
+      }
+    }
+
+    //add new column if there is place available on screen
+    Rectangle lastColumn = onScreenColumns.get(onScreenColumns.size() - 1);
+    if(lastColumn.x + lastColumn.width + betweenColumnWidth < screentWidth){
+      onScreenColumns.add(new Rectangle(screentWidth, 0 , columnWidth, screenHeight));
+    }
   }
 }
