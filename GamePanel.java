@@ -38,8 +38,10 @@ public class GamePanel extends JPanel {
           xPosition = xPosition - gameSpeed;
           repaint();
         }
-      };
-  
+      };      
+    }
+
+    public void StartGame(){
       timer.schedule(task, 0, timerDelay);
     }
   

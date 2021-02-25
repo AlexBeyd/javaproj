@@ -31,11 +31,12 @@ public class Game {
 
     c.gridx = 0;
     c.gridy = 1;
-    f.add(new GamePanel(), c);
+    GamePanel gamePanel = new GamePanel();
+    f.add(gamePanel, c);
 
     c.gridx = 0;
     c.gridy = 2;
-    f.add(new GameControls(f), c);
+    f.add(new GameControls(f, gamePanel), c);
 
     f.pack();
     f.setResizable(false);
