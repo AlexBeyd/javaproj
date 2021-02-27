@@ -25,6 +25,7 @@ public class Game {
     GridBagConstraints c = new GridBagConstraints();
     c.fill = GridBagConstraints.HORIZONTAL;
 
+    //display user info panel
     c.gridx = 0;
     c.gridy = 0;
     f.add(new UserInfo(), c);
