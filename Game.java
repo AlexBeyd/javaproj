@@ -1,5 +1,6 @@
 import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import java.awt.*;
 
@@ -42,5 +43,8 @@ public class Game {
     f.pack();
     f.setResizable(false);
     f.setVisible(true);
+
+    //show start game modal dialog box
+    new StartGameDialog(f);
   }
 }
