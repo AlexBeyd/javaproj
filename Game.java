@@ -1,6 +1,5 @@
 import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import java.awt.*;
 
@@ -16,12 +15,12 @@ public class Game {
 
   private static void createAndShowGUI() {
 
-    JFrame f = new JFrame("TheSaggyChickGame");
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    JFrame mainFrame = new JFrame("TheSaggyChickGame");
+    mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    f.setIconImage((new ImageIcon("download.jpg")).getImage());
+    mainFrame.setIconImage((new ImageIcon("download.jpg")).getImage());
 
-    f.setLayout(new GridBagLayout());
+    mainFrame.setLayout(new GridBagLayout());
 
     GridBagConstraints c = new GridBagConstraints();
     c.fill = GridBagConstraints.HORIZONTAL;
@@ -30,32 +29,33 @@ public class Game {
     c.gridx = 0;
     c.gridy = 0;
     UserInfo userInfo = new UserInfo();
-    f.add(userInfo, c);
+    mainFrame.add(userInfo, c);
 
     c.gridx = 0;
     c.gridy = 1;
     GamePanel gamePanel = new GamePanel();
-    f.add(gamePanel, c);
+    mainFrame.add(gamePanel, c);
 
     c.gridx = 0;
     c.gridy = 2;
-    f.add(new GameControls(f, gamePanel), c);
+    mainFrame.add(new GameControls(mainFrame, gamePanel), c);
 
-    f.pack();
-    f.setResizable(false);
-    f.setVisible(true);
+    mainFrame.pack();
+    mainFrame.setResizable(false);
+    mainFrame.setVisible(true);
 
     // show start game modal dialog box
-    StartGameDialog startGameDialog = new StartGameDialog(f);
+    StartGameDialog startGameDialog = new StartGameDialog(mainFrame);
 
     switch (startGameDialog.GetAnswer()) {
-      case 0: //cancel
+      case 0: // cancel
+        mainFrame.dispose();
         break;
-      case 1: //play with player name
+      case 1: // play with player name
         userInfo.SetUserName(startGameDialog.GetPlayerName());
-        userInfo.SetUserScore("0000");  //replace by reading latest score for the player from database
+        userInfo.SetUserScore("0000"); // replace by reading latest score for the player from database
         break;
-      case 2: //play anonymously
+      case 2: // play anonymously
         userInfo.SetUserName("Anonymous");
         userInfo.SetUserScore("******");
         break;

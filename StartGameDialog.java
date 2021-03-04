@@ -12,7 +12,7 @@ import javax.swing.JTextField;
 public class StartGameDialog extends JDialog {
     JTextField playerName;
     JPanel dialogPane;
-    JButton cancelButton;
+    JButton closeGameButton;
     JButton playAnonymousButton;
     JButton playButton;
     int dialogAnswer = 0;
@@ -24,10 +24,10 @@ public class StartGameDialog extends JDialog {
         playerName.selectAll(); //select the entire text so it will be deleted once a user starts typing
         
         //cancel button will close the dialog box and do nothing
-        cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(action -> {
+        closeGameButton = new JButton("Close Game");
+        closeGameButton.addActionListener(action -> {
             dialogAnswer = 0;
-            this.setVisible(false);
+            this.dispose();
         });
 
         playButton = new JButton("Play");
@@ -50,7 +50,7 @@ public class StartGameDialog extends JDialog {
         JPanel controlsPanel = new JPanel();
         controlsPanel.add(playButton);
         controlsPanel.add(playAnonymousButton);
-        controlsPanel.add(cancelButton);
+        controlsPanel.add(closeGameButton);
         dialogPanel.add(controlsPanel);
 
         setContentPane(dialogPanel);
