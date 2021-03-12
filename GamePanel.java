@@ -22,6 +22,11 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   int gameSpeed = 10;
 
+  int currentCursorX = -1;
+  int currentCursorY = -1;
+  int cursorWidth = 10;
+  int cursonHeight = 10;
+
   int columnWidth = 100;
   int betweenColumnWidth = columnWidth * 2;
   Color columnColor = Color.lightGray;
@@ -40,6 +45,8 @@ public class GamePanel extends JPanel implements MouseMotionListener {
       public void run() {
         xPosition = xPosition - gameSpeed;
         repaint();
+
+        UpdateColumnsPostitions();
       }
     };
 
@@ -59,15 +66,30 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
 
+    drawCursor(g);
+
     paintObstacles(g);
   }
 
   public void mouseMoved(MouseEvent e) {
-    System.out.println("Hello");
+
+    //erase old curson
+    if (currentCursorX != -1 && currentCursorY != -1)
+      repaint(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
+
+    //update coordinates for cursor new position
+    currentCursorX = e.getX();
+    currentCursorY = e.getY();
+
+    //paint curson on new position
+    repaint(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
+
+    if(IsColumnHit()){
+      System.out.println("Focus!");
+    }
   }
 
   private void paintObstacles(Graphics g) {
-
     // draw all on screen columns
     for (GameColumn gameColumn : onScreenColumns) {
       g.setColor(columnColor);
@@ -76,7 +98,9 @@ public class GamePanel extends JPanel implements MouseMotionListener {
         g.fillRect(column.x, column.y, column.width, column.height);
       }
     }
+  }
 
+  private void UpdateColumnsPostitions() {
     // update columns position
     int index = 0;
     while (index < onScreenColumns.size()) {
@@ -92,11 +116,23 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
       index++;
     }
-
     // add new column if there is place available on screen
     Rectangle lastColumn = onScreenColumns.get(onScreenColumns.size() - 1).getWalls().get(0);
     if (lastColumn.x + lastColumn.width + betweenColumnWidth < screentWidth) {
       onScreenColumns.add(new GameColumn(screentWidth, 0, columnWidth, screenHeight));
+    }
+  }
+
+  private void drawCursor(Graphics g) {
+    g.drawRect(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
+  }
+
+  private bool IsColumnHit(){
+    for (GameColumn gameColumn : onScreenColumns) {
+      for (Rectangle column : gameColumn.getWalls()) {
+        
+        g.fillRect(column.x, column.y, column.width, column.height);
+      }
     }
   }
 }
