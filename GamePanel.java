@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
 import java.awt.event.MouseMotionListener;
-import java.io.Console;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
@@ -37,7 +36,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   ArrayList<GameColumn> onScreenColumns = new ArrayList<>();
 
-  static Timer timer = new Timer("Timer");
+  Timer timer;
   TimerTask task;
 
   public GamePanel(JFrame parent) {
@@ -45,8 +44,13 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
     setBorder(BorderFactory.createLineBorder(Color.black));
 
-    onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
+    onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));    
 
+    addMouseMotionListener(this);
+  }
+
+  public void StartGame() {
+    timer = new Timer("Timer");
     task = new TimerTask() {
       public void run() {
         xPosition = xPosition - gameSpeed;
@@ -56,16 +60,12 @@ public class GamePanel extends JPanel implements MouseMotionListener {
       }
     };
 
-    addMouseMotionListener(this);
-  }
-
-  public void StartGame() {
     timer.schedule(task, 0, timerDelay);
   }
 
   private void StopGame() {
+    timer.cancel();
     task.cancel();
-    //timer.cancel();
   }
 
   @Override
@@ -98,6 +98,14 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     if (isColumnHit()) {
       StopGame();
       JOptionPane.showMessageDialog(parentFrame, "Focus!");
+
+      //reset all columns to initial state
+      xPosition = screentWidth;
+      onScreenColumns = new ArrayList<>();
+      onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
+
+      //clear game screen
+      repaint();
     }
   }
 
@@ -140,6 +148,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   }
 
   private boolean isColumnHit() {
+    
     for (GameColumn gameColumn : onScreenColumns) {
       for (Rectangle column : gameColumn.getWalls()) {
         if (currentCursorX < column.x + column.width && currentCursorX + cursorWidth > column.x
