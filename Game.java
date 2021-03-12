@@ -33,7 +33,7 @@ public class Game {
 
     c.gridx = 0;
     c.gridy = 1;
-    GamePanel gamePanel = new GamePanel();
+    GamePanel gamePanel = new GamePanel(mainFrame);
     mainFrame.add(gamePanel, c);
 
     c.gridx = 0;

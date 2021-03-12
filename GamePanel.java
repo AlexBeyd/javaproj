@@ -10,9 +10,13 @@ import java.io.Console;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements MouseMotionListener {
+
+  JFrame parentFrame;
 
   int screenHeight = 700;
   int screentWidth = 1000;
@@ -36,7 +40,9 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   static Timer timer = new Timer("Timer");
   TimerTask task;
 
-  public GamePanel() {
+  public GamePanel(JFrame parent) {
+    parentFrame = parent;
+
     setBorder(BorderFactory.createLineBorder(Color.black));
 
     onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
@@ -57,6 +63,11 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     timer.schedule(task, 0, timerDelay);
   }
 
+  private void StopGame() {
+    task.cancel();
+    //timer.cancel();
+  }
+
   @Override
   public Dimension getPreferredSize() {
     return new Dimension(screentWidth, screenHeight);
@@ -73,19 +84,20 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   public void mouseMoved(MouseEvent e) {
 
-    //erase old curson
+    // erase old curson
     if (currentCursorX != -1 && currentCursorY != -1)
       repaint(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
 
-    //update coordinates for cursor new position
+    // update coordinates for cursor new position
     currentCursorX = e.getX();
     currentCursorY = e.getY();
 
-    //paint curson on new position
+    // paint curson on new position
     repaint(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
 
-    if(IsColumnHit()){
-      System.out.println("Focus!");
+    if (isColumnHit()) {
+      StopGame();
+      JOptionPane.showMessageDialog(parentFrame, "Focus!");
     }
   }
 
@@ -127,12 +139,15 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     g.drawRect(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
   }
 
-  private bool IsColumnHit(){
+  private boolean isColumnHit() {
     for (GameColumn gameColumn : onScreenColumns) {
       for (Rectangle column : gameColumn.getWalls()) {
-        
-        g.fillRect(column.x, column.y, column.width, column.height);
+        if (currentCursorX < column.x + column.width && currentCursorX + cursorWidth > column.x
+            && currentCursorY < column.y + column.height && currentCursorY + cursonHeight > column.y)
+          return true;
       }
     }
+
+    return false;
   }
 }
