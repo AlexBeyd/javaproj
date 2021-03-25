@@ -17,6 +17,8 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   JFrame parentFrame;
 
+  UserInfo userInfoPanel;
+
   int screenHeight = 700;
   int screentWidth = 1000;
 
@@ -39,8 +41,9 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   Timer timer;
   TimerTask task;
 
-  public GamePanel(JFrame parent) {
+  public GamePanel(JFrame parent, UserInfo userInfo) {
     parentFrame = parent;
+    userInfoPanel = userInfo;
 
     setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -64,6 +67,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   }
 
   private void StopGame() {
+    userInfoPanel.SavePlayerInfo();
     timer.cancel();
     task.cancel();
   }

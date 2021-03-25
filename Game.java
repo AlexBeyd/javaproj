@@ -15,6 +15,8 @@ public class Game {
 
   private static void createAndShowGUI() {
 
+    PlayerDatabase database = new PlayerDatabase();
+
     JFrame mainFrame = new JFrame("TheSaggyChickGame");
     mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -28,12 +30,12 @@ public class Game {
     // display user info panel
     c.gridx = 0;
     c.gridy = 0;
-    UserInfo userInfo = new UserInfo();
+    UserInfo userInfo = new UserInfo(database);
     mainFrame.add(userInfo, c);
 
     c.gridx = 0;
     c.gridy = 1;
-    GamePanel gamePanel = new GamePanel(mainFrame);
+    GamePanel gamePanel = new GamePanel(mainFrame, userInfo);
     mainFrame.add(gamePanel, c);
 
     c.gridx = 0;

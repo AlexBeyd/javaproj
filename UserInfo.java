@@ -1,12 +1,20 @@
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
+
 import java.awt.*;
 
 class UserInfo extends JPanel {
   public JTextField userNameField;
   public JTextField userScoreField;
-  public UserInfo() {
+
+  PlayerDatabase playerDatabase;
+
+  public UserInfo(PlayerDatabase database) {
+    playerDatabase = database;
+
     this.setLayout(new GridLayout(1, 2));
 
     JPanel p1 = new JPanel(new FlowLayout());
@@ -24,19 +32,27 @@ class UserInfo extends JPanel {
     this.add(p2);
   }
 
-  public String GetUserScore(){
+  public String GetUserScore() {
     return userScoreField.getText();
   }
 
-  public void SetUserScore(String score){
+  public void SetUserScore(String score) {
     userScoreField.setText(score);
   }
 
-  public String GetUserName(){
+  public String GetUserName() {
     return userNameField.getText();
   }
 
-  public void SetUserName(String name){
+  public void SetUserName(String name) {
     userNameField.setText(name);
+  }
+
+  public void SavePlayerInfo() {
+    StoreUserInfoInDatabase(GetUserName(), GetUserScore());
+  }
+
+  void StoreUserInfoInDatabase(String userName, String userScore) {
+    playerDatabase.UpdateUserScore(userName, Integer.parseInt(userScore));
   }
 }
