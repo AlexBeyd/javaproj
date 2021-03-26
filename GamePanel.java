@@ -74,11 +74,9 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     userScoreTimer = new Timer("User Score");
     userScoreUpdateTask = new TimerTask() {
       public void run(){
+        
         // get score for the moment
-        gameScore ++;
-
-        System.out.println(String.valueOf(gameScore));
-        userInfoPanel.userScoreField.setText(String.valueOf(gameScore));
+        userInfoPanel.userScoreField.setText(String.valueOf(gameScore++));
       }
     };
     userScoreTimer.schedule(userScoreUpdateTask, 1000, 1000);
