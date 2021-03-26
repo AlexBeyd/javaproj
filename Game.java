@@ -55,7 +55,7 @@ public class Game {
         break;
       case 1: // play with player name
         userInfo.SetUserName(startGameDialog.GetPlayerName());
-        userInfo.SetUserScore("0000"); // replace by reading latest score for the player from database
+        userInfo.SetUserScore(database.GetUSerScore(startGameDialog.GetPlayerName())); 
         break;
       case 2: // play anonymously
         userInfo.SetUserName("Anonymous");

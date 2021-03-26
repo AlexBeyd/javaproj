@@ -1,0 +1,2 @@
+User:A/Score:3
+User:B/Score:12

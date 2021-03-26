@@ -2,6 +2,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.ReentrantLock;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
@@ -38,8 +39,13 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   ArrayList<GameColumn> onScreenColumns = new ArrayList<>();
 
+  long gameScore = 0;
+
   Timer timer;
   TimerTask task;
+
+  Timer userScoreTimer;
+  TimerTask userScoreUpdateTask;
 
   public GamePanel(JFrame parent, UserInfo userInfo) {
     parentFrame = parent;
@@ -47,13 +53,14 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
     setBorder(BorderFactory.createLineBorder(Color.black));
 
-    onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));    
+    onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
 
     addMouseMotionListener(this);
   }
 
   public void StartGame() {
     timer = new Timer("Timer");
+
     task = new TimerTask() {
       public void run() {
         xPosition = xPosition - gameSpeed;
@@ -62,14 +69,30 @@ public class GamePanel extends JPanel implements MouseMotionListener {
         UpdateColumnsPostitions();
       }
     };
-
     timer.schedule(task, 0, timerDelay);
+
+    userScoreTimer = new Timer("User Score");
+    userScoreUpdateTask = new TimerTask() {
+      public void run(){
+        // get score for the moment
+        gameScore ++;
+
+        System.out.println(String.valueOf(gameScore));
+        userInfoPanel.userScoreField.setText(String.valueOf(gameScore));
+      }
+    };
+    userScoreTimer.schedule(userScoreUpdateTask, 1000, 1000);
   }
 
   private void StopGame() {
+    gameScore = 0;
     userInfoPanel.SavePlayerInfo();
+
     timer.cancel();
     task.cancel();
+
+    userScoreTimer.cancel();
+    userScoreUpdateTask.cancel();
   }
 
   @Override
@@ -103,12 +126,12 @@ public class GamePanel extends JPanel implements MouseMotionListener {
       StopGame();
       JOptionPane.showMessageDialog(parentFrame, "Focus!");
 
-      //reset all columns to initial state
+      // reset all columns to initial state
       xPosition = screentWidth;
       onScreenColumns = new ArrayList<>();
       onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
 
-      //clear game screen
+      // clear game screen
       repaint();
     }
   }
@@ -152,7 +175,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   }
 
   private boolean isColumnHit() {
-    
+
     for (GameColumn gameColumn : onScreenColumns) {
       for (Rectangle column : gameColumn.getWalls()) {
         if (currentCursorX < column.x + column.width && currentCursorX + cursorWidth > column.x
