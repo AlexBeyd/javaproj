@@ -60,6 +60,7 @@ public class Game {
       case 2: // play anonymously
         userInfo.SetUserName("Anonymous");
         userInfo.SetUserScore("******");
+        gamePanel.isAnonymusMode = true;  //set game panel to anonymus mode - prevent from creating database record
         break;
       default:
     }

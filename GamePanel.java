@@ -20,6 +20,8 @@ import java.awt.image.*;
 
 public class GamePanel extends JPanel implements MouseMotionListener {
 
+  public boolean isAnonymusMode = false;
+
   JFrame parentFrame;
 
   UserInfo userInfoPanel;
@@ -117,7 +119,9 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   private void StopGame() {
     gameScore = 0;
-    userInfoPanel.SavePlayerInfo();
+
+    //save to database only if user is not anonymus
+    if(!isAnonymusMode) userInfoPanel.SavePlayerInfo();
 
     obstaclesUpdateTask.cancel();
     obstaclesUpdateTask.cancel();
