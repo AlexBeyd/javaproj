@@ -2,7 +2,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.locks.ReentrantLock;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
@@ -41,8 +40,8 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   long gameScore = 0;
 
-  Timer timer;
-  TimerTask task;
+  Timer obstaclesUpdateTimer;
+  TimerTask obstaclesUpdateTask;
 
   Timer userScoreTimer;
   TimerTask userScoreUpdateTask;
@@ -59,17 +58,30 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   }
 
   public void StartGame() {
-    timer = new Timer("Timer");
+    obstaclesUpdateTimer = new Timer("obstaclesUpdateTask");
 
-    task = new TimerTask() {
+    obstaclesUpdateTask = new TimerTask() {
       public void run() {
         xPosition = xPosition - gameSpeed;
         repaint();
 
-        UpdateColumnsPostitions();
+        if (isColumnHit()) {
+          StopGame();
+          JOptionPane.showMessageDialog(parentFrame, "Focus!");
+    
+          // reset all columns to initial state
+          xPosition = screentWidth;
+          onScreenColumns = new ArrayList<>();
+          onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
+    
+          // clear game screen
+          repaint();
+        } else{
+          UpdateColumnsPostitions();
+        }
       }
     };
-    timer.schedule(task, 0, timerDelay);
+    obstaclesUpdateTimer.schedule(obstaclesUpdateTask, 0, timerDelay);
 
     userScoreTimer = new Timer("User Score");
     userScoreUpdateTask = new TimerTask() {
@@ -86,8 +98,8 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     gameScore = 0;
     userInfoPanel.SavePlayerInfo();
 
-    timer.cancel();
-    task.cancel();
+    obstaclesUpdateTask.cancel();
+    obstaclesUpdateTask.cancel();
 
     userScoreTimer.cancel();
     userScoreUpdateTask.cancel();
@@ -119,19 +131,6 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
     // paint curson on new position
     repaint(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
-
-    if (isColumnHit()) {
-      StopGame();
-      JOptionPane.showMessageDialog(parentFrame, "Focus!");
-
-      // reset all columns to initial state
-      xPosition = screentWidth;
-      onScreenColumns = new ArrayList<>();
-      onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
-
-      // clear game screen
-      repaint();
-    }
   }
 
   private void paintObstacles(Graphics g) {
