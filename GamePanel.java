@@ -6,12 +6,17 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
+import java.io.IOException;
 import java.awt.event.MouseEvent;
 
+import javax.imageio.*;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import java.awt.image.*;
 
 public class GamePanel extends JPanel implements MouseMotionListener {
 
@@ -27,10 +32,12 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
   int gameSpeed = 10;
 
-  int currentCursorX = -1;
+  int currentCursorX = -1; // initial cursor position
   int currentCursorY = -1;
-  int cursorWidth = 10;
-  int cursonHeight = 10;
+  int cursorWidth; // will be initialized in constructor from actual curson image dimensions
+  int cursonHeight;
+
+  boolean isGameRunning = false;
 
   int columnWidth = 100;
   int betweenColumnWidth = columnWidth * 2;
@@ -46,9 +53,19 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   Timer userScoreTimer;
   TimerTask userScoreUpdateTask;
 
+  BufferedImage birdImage;
+
   public GamePanel(JFrame parent, UserInfo userInfo) {
     parentFrame = parent;
     userInfoPanel = userInfo;
+
+    try {
+      birdImage = ImageIO.read(new File("bird_cursor.png"));
+      cursonHeight = birdImage.getHeight();
+      cursorWidth = birdImage.getWidth();
+    } catch (IOException e) {
+
+    }
 
     setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -58,6 +75,8 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   }
 
   public void StartGame() {
+    isGameRunning = true;
+
     obstaclesUpdateTimer = new Timer("obstaclesUpdateTask");
 
     obstaclesUpdateTask = new TimerTask() {
@@ -68,15 +87,17 @@ public class GamePanel extends JPanel implements MouseMotionListener {
         if (isColumnHit()) {
           StopGame();
           JOptionPane.showMessageDialog(parentFrame, "Focus!");
-    
+
           // reset all columns to initial state
           xPosition = screentWidth;
           onScreenColumns = new ArrayList<>();
           onScreenColumns.add(new GameColumn(xPosition, 0, columnWidth, screenHeight));
-    
+
           // clear game screen
           repaint();
-        } else{
+
+          isGameRunning = false;
+        } else {
           UpdateColumnsPostitions();
         }
       }
@@ -85,8 +106,8 @@ public class GamePanel extends JPanel implements MouseMotionListener {
 
     userScoreTimer = new Timer("User Score");
     userScoreUpdateTask = new TimerTask() {
-      public void run(){
-        
+      public void run() {
+
         // get score for the moment
         userInfoPanel.userScoreField.setText(String.valueOf(gameScore++));
       }
@@ -114,9 +135,11 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    drawCursor(g);
+    if (isGameRunning) {
+      drawCursor(g);
 
-    paintObstacles(g);
+      paintObstacles(g);
+    }
   }
 
   public void mouseMoved(MouseEvent e) {
@@ -168,7 +191,7 @@ public class GamePanel extends JPanel implements MouseMotionListener {
   }
 
   private void drawCursor(Graphics g) {
-    g.drawRect(currentCursorX, currentCursorY, cursorWidth, cursonHeight);
+    g.drawImage(birdImage, currentCursorX, currentCursorY, null);
   }
 
   private boolean isColumnHit() {
@@ -182,5 +205,10 @@ public class GamePanel extends JPanel implements MouseMotionListener {
     }
 
     return false;
+  }
+
+  @Override
+  public void mouseDragged(MouseEvent e) {
+    //this.dispatchEvent(e);  //just pass the event to parent    
   }
 }
